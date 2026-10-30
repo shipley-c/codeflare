@@ -22,8 +22,8 @@ RUN npm prune --omit=dev
 # ---- Pinned rclone with verified per-side bisync bookkeeping ----
 FROM mirror.gcr.io/library/node:26-bookworm-slim@sha256:86f07bc9c5dce4578cf37e5a418b7bfc7f817cda25cde66e2b66e95ed86c4567 AS rclone-builder
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl python3 && rm -rf /var/lib/apt/lists/*
-RUN curl -fsSL https://go.dev/dl/go1.27.2.linux-amd64.tar.gz -o /tmp/go.tar.gz \
-    && echo "ecbadb99091a3f46e31f5f934b068b1864eafa7995211b39eaddf76996045fe5  /tmp/go.tar.gz" | sha256sum -c - \
+RUN curl -fsSL https://go.dev/dl/go1.27.3.linux-amd64.tar.gz -o /tmp/go.tar.gz \
+    && echo "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40  /tmp/go.tar.gz" | sha256sum -c - \
     && tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz
 ENV PATH="/usr/local/go/bin:${PATH}" CGO_ENABLED=0 GOTOOLCHAIN=local
 WORKDIR /src/rclone
@@ -31,6 +31,7 @@ RUN curl -fsSL https://codeload.github.com/rclone/rclone/tar.gz/refs/tags/v1.73.
     && echo "e52541bc238dd434a0335f467697d7d9575529698a74aab534ad39b8649f8a49  /tmp/rclone.tar.gz" | sha256sum -c - \
     && tar --strip-components=1 -xzf /tmp/rclone.tar.gz && rm /tmp/rclone.tar.gz \
     && go mod edit -require=google.golang.org/grpc@v1.83.2 \
+    && go mod edit -require=github.com/klauspost/compress@v1.18.7 \
     && go mod tidy
 COPY scripts/patch-rclone-bisync.py /tmp/patch-rclone-bisync.py
 COPY scripts/ci/rclone-bookkeeping_test.go /tmp/rclone-bookkeeping_test.go
@@ -325,11 +326,11 @@ RUN SILVERBULLET_VERSION="2.12.1" && \
 # CVE-2026-102990, preserving its CommonJS API for the get-uri consumer.
 # Drop each overlay after its upstream artifact contains at least the pinned
 # fixed version.
-RUN CODE_SERVER_VERSION="4.141.0" && \
-    CODE_SERVER_SHA256="65bcd20b524d03eb1b5adb7f360244599ef0e5b74089a46a982d32c074b97a29" && \
-    CODE_SERVER_COMMIT="8b41915d25547e2edd553bab03ea4cbd621f98c5" && \
-    CODE_SERVER_CODE_VERSION="1.141.0" && \
-    CODE_SERVER_VSCODE_COMMIT="2a59476c9bfcb90b3ddc372c36762471b7dfad1c" && \
+RUN CODE_SERVER_VERSION="4.144.0" && \
+    CODE_SERVER_SHA256="710f749c40a0f3d0ab3be09c0de65314e5c2907cc50646f5fbc0f24c0e8fba2d" && \
+    CODE_SERVER_COMMIT="ee31cdbe02c07b3ba718007f221d14c890696c61" && \
+    CODE_SERVER_CODE_VERSION="1.144.0" && \
+    CODE_SERVER_VSCODE_COMMIT="2c33b50b16c472efe58357d1d2a8a5414bc23fbf" && \
     NODE_TAR_VERSION="7.5.21" && \
     NODE_TAR_SHA512="5dd86d0af94ccb0c31a425bc604ab794e5c126950f4d1d8e1c77302cf3b71f0b09a8e1dad8e93fa09eebb86ce9f89acaa113d50b327001d123a8b5bfbcd44f1c" && \
     BRACE_EXPANSION_VERSION="5.0.12" && \
@@ -442,8 +443,8 @@ COPY .cache-bust /tmp/.cache-bust
 COPY preseed/silverbullet/ /opt/silverbullet-preseed/
 
 # Install an integrity-pinned gh release containing grpc-go's CVE-2026-84304 fix.
-RUN GH_VERSION="2.99.0" && \
-    GH_SHA256="471feb449cc98d527fc9a67601b9ea04296c100b666d970a784a07dc17a59a8f" && \
+RUN GH_VERSION="2.103.3" && \
+    GH_SHA256="e3bafef96328d1a67de3a968bdfe1cc2ffd58cf6aba8b5e201356897ed06bb3d" && \
     curl -fsSL --retry 3 --retry-delay 5 --connect-timeout 30 \
       "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb" \
       -o /tmp/gh.deb && \
