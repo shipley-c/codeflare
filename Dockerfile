@@ -442,8 +442,8 @@ COPY .cache-bust /tmp/.cache-bust
 COPY preseed/silverbullet/ /opt/silverbullet-preseed/
 
 # Install an integrity-pinned gh release containing grpc-go's CVE-2026-84304 fix.
-RUN GH_VERSION="2.99.0" && \
-    GH_SHA256="471feb449cc98d527fc9a67601b9ea04296c100b666d970a784a07dc17a59a8f" && \
+RUN GH_VERSION="2.103.3" && \
+    GH_SHA256="e3bafef96328d1a67de3a968bdfe1cc2ffd58cf6aba8b5e201356897ed06bb3d" && \
     curl -fsSL --retry 3 --retry-delay 5 --connect-timeout 30 \
       "https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb" \
       -o /tmp/gh.deb && \
