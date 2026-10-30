@@ -315,7 +315,7 @@ RUN SILVERBULLET_VERSION="2.12.1" && \
 # code-server commit in package.json and product.json; the build verifies both
 # plus the real lib/vscode package version. Shadow Pins derives the gitlink from
 # the immutable release tag and owns the five code-server literals below.
-# The pinned code-server archive supplies js-yaml 5.4.1 in its upstream 5.x
+# The pinned code-server archive supplies js-yaml 5.4.3 in its upstream 5.x
 # range; do not downgrade it with the former 4.x overlay. Retain the independent
 # tar and pacote overlays pending their separate runtime verification.
 # The immutable Node artifact carries vulnerable node-tar; the integrity-pinned
@@ -359,7 +359,7 @@ RUN CODE_SERVER_VERSION="4.144.0" && \
     echo "${PACOTE_SHA512}  /tmp/pacote.tgz" | sha512sum -c - && \
     mkdir -p /opt/code-server && \
     tar -xzf /tmp/code-server.tar.gz -C /opt/code-server --strip-components=1 && \
-    test "$(jq -r .version /opt/code-server/node_modules/js-yaml/package.json)" = "5.4.1" && \
+    test "$(jq -r .version /opt/code-server/node_modules/js-yaml/package.json)" = "5.4.3" && \
     test "$(jq -r .version /opt/code-server/lib/vscode/node_modules/tar/package.json)" = "7.5.22" && \
     for NODE_TAR_DIR in /usr/local/lib/node_modules/npm/node_modules/tar; do \
       rm -rf "$NODE_TAR_DIR" && \
