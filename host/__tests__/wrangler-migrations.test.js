@@ -14,7 +14,7 @@ const workerEntry = readFileSync(resolve(__dirname, '../../src/index.ts'), 'utf8
 describe('Durable Object migration history', () => {
   it('retains every migration tag already applied to the integration script', () => {
     assert.match(wranglerToml, /tag = "v1"[\s\S]*?new_sqlite_classes = \["container"\]/);
-    assert.match(wranglerToml, /tag = "v2"[\s\S]*?new_classes = \["timekeeper"\]/);
+    assert.match(wranglerToml, /tag = "v2"[\s\S]*?new_sqlite_classes = \["timekeeper"\]/);
     assert.match(wranglerToml, /tag = "v3"[\s\S]*?new_sqlite_classes = \["OperatorRegistry"\]/);
     assert.match(wranglerToml, /tag = "v4"[\s\S]*?new_sqlite_classes = \["OperatorActivity"\]/);
     assert.match(workerEntry, /OperatorRegistry/);
