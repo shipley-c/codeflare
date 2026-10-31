@@ -48,6 +48,20 @@ RUN mkdir -p /out \
     && go test ./cmd/bisync -run '^TestCodeflare' -count=1 \
     && go build -trimpath -ldflags '-s -w -X github.com/rclone/rclone/fs.Version=v1.73.5-codeflare-bisync1' -o /out/rclone .
 
+# ---- lazygit built from source with a patched Go toolchain ----
+FROM mirror.gcr.io/library/node:26-bookworm-slim@sha256:86f07bc9c5dce4578cf37e5a418b7bfc7f817cda25cde66e2b66e95ed86c4567 AS lazygit-builder
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://go.dev/dl/go1.27.3.linux-amd64.tar.gz -o /tmp/go.tar.gz \
+    && echo "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40  /tmp/go.tar.gz" | sha256sum -c - \
+    && tar -C /usr/local -xzf /tmp/go.tar.gz && rm /tmp/go.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}" CGO_ENABLED=0 GOTOOLCHAIN=local
+WORKDIR /src/lazygit
+RUN curl -fsSL https://codeload.github.com/jesseduffield/lazygit/tar.gz/refs/tags/v0.66.2 -o /tmp/lazygit.tar.gz \
+    && echo "fcaad0909af765ef87bd873164a4de78435515ab4d8b04f58d6ad51e8ecd00e5  /tmp/lazygit.tar.gz" | sha256sum -c - \
+    && tar --strip-components=1 -xzf /tmp/lazygit.tar.gz && rm /tmp/lazygit.tar.gz \
+    && mkdir -p /out \
+    && go build -trimpath -ldflags '-s -w -X main.version=0.66.2' -o /out/lazygit .
+
 # ---- Image-owned Impeccable engine with configured question idle grace ----
 FROM mirror.gcr.io/library/node:26-bookworm-slim@sha256:86f07bc9c5dce4578cf37e5a418b7bfc7f817cda25cde66e2b66e95ed86c4567 AS impeccable-builder
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl xz-utils build-essential pkg-config libssl-dev python3 && rm -rf /var/lib/apt/lists/*
@@ -280,13 +294,7 @@ RUN YAZI_VERSION="26.9.1" && \
     mv /tmp/yazi/yazi-x86_64-unknown-linux-musl/yazi /usr/local/bin/yazi && \
     chmod +x /usr/local/bin/yazi && \
     rm -rf /tmp/yazi /tmp/yazi.zip
-RUN LAZYGIT_VERSION="0.66.2" && \
-    LAZYGIT_SHA256="158efc9ddfa1241fab5fb3526bb442c8dc6c4b1904d73213b9e4e93e03c52034" && \
-    curl -fsSL --retry 3 --retry-delay 5 --connect-timeout 30 "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_linux_x86_64.tar.gz" -o /tmp/lazygit.tar.gz && \
-    echo "${LAZYGIT_SHA256}  /tmp/lazygit.tar.gz" | sha256sum -c - && \
-    tar xzf /tmp/lazygit.tar.gz -C /usr/local/bin lazygit && \
-    chmod +x /usr/local/bin/lazygit && \
-    rm /tmp/lazygit.tar.gz
+COPY --from=lazygit-builder /out/lazygit /usr/local/bin/lazygit
 
 # Install SilverBullet server (Deno-compiled single binary). Used by the
 # codeflare-vault plugin as the in-browser markdown editor for the persistent
