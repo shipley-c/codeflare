@@ -424,7 +424,7 @@ RUN CODE_SERVER_VERSION="4.144.0" && \
     test ! -e /opt/openvscode-server && \
     rm -f /tmp/code-server.tar.gz /tmp/node-tar.tgz /tmp/pacote.tgz
 
-# The verified code-server 4.141.0 archive supplies the fixed compression closure.
+# The verified code-server 4.144.0 archive supplies the fixed compression closure.
 # Retire the separate overlay, but verify actual dependency resolution and middleware.
 RUN node -e 'const assert = require("node:assert/strict"); const { createRequire } = require("node:module"); const requireCodeServer = createRequire("/opt/code-server/package.json"); const requireCompression = createRequire(requireCodeServer.resolve("compression")); assert.equal(requireCodeServer("compression/package.json").version, "1.8.2"); assert.equal(requireCompression("destroy/package.json").version, "1.2.0"); assert.equal(requireCompression("debug/package.json").version, "2.6.9"); assert.equal(typeof requireCompression("destroy"), "function"); assert.equal(typeof requireCompression("debug"), "function"); assert.equal(typeof requireCodeServer("compression")(), "function")'
 

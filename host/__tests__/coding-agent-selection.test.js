@@ -164,7 +164,7 @@ describe('REQ-OPS-038: deployment coding-agent selection', () => {
         mkdirSync(path);
         writeFileSync(
           join(path, 'package.json'),
-          JSON.stringify({ name: 'js-yaml', version: '5.4.1', main: 'index.cjs' }),
+          JSON.stringify({ name: 'js-yaml', version: '5.4.3', main: 'index.cjs' }),
         );
       }
       writeFileSync(join(runtimePath, 'index.cjs'), 'exports.load = () => ({});\n');
