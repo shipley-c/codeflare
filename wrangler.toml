@@ -134,7 +134,7 @@ new_sqlite_classes = ["container"]
 
 [[migrations]]
 tag = "v2"
-new_classes = ["timekeeper"]
+new_sqlite_classes = ["timekeeper"]
 
 [[migrations]]
 tag = "v3"
